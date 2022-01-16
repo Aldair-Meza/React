@@ -1,23 +1,40 @@
-import logo from './logo.svg';
 import './App.css';
+import Header from './components/Header';
+import Formulario from './components/Formulario';
+import { useState } from 'react';
+import TodoList from './components/TodoList';
+
 
 function App() {
+  
+  const [input, setInput] = useState("");
+  const [todos, setTodos] = useState([]);
+  const [edit, setEdit] = useState (null);
+  const [valor, setValor] = useState("");
+  const [contar, setContar] = useState(0);
+
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container">
+      <div className='app-wrapper'>
+        <div>
+          <Header/>
+        </div>
+        <div>
+          <Formulario input={input} setInput={setInput} 
+            todos={todos} setTodos={setTodos}
+            edit={edit} setEdit={setEdit}
+            valor={valor} setValor={setValor}
+            contar={contar} setContar={setContar}/>
+
+        </div>
+
+        <div>
+          <TodoList todos={todos} setTodos={setTodos} setEdit={setEdit}/>
+        </div>
+
+      </div>
+      
     </div>
   );
 }
