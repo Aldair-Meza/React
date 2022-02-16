@@ -3,10 +3,23 @@ import {v4 as uuid4} from 'uuid';
 import PropTypes from 'prop-types'
 
 
-const Formulario = ({input, setInput, todos, setTodos, edit, setEdit, valor, setValor, contar, setContar}) => {
+const Formulario = ({input, setInput, todos, setTodos, edit, setEdit, valor, setValor,
+     contar, setContar, movimiento, setMovimiento, saldinicial, setSaldinicial,
+      saldfinal, setSaldfinal, buscar, setBuscar}) => {
     const handleInputChange = ({target}) =>{
         setInput(target.value);
         
+    }
+
+    const calcularSaldo = (movimiento, valor) =>{
+        if (movimiento == 'Ingreso') {
+            let total = parseInt(saldfinal) + parseInt(valor)
+            setSaldfinal(total)
+        }else{
+            let total = parseInt(saldfinal) - parseInt(valor)
+            setSaldfinal(total)
+        }
+
     }
 
     const handleValorChange = ({target}) =>{
@@ -21,50 +34,74 @@ const Formulario = ({input, setInput, todos, setTodos, edit, setEdit, valor, set
     const handleSubmit = (e) =>{        
         e.preventDefault();        
         if(edit){
-            updateTodo(edit.id, input, edit.completed)
+            updateTodo(edit.id, input,movimiento,valor)
 
         }else{
-        const newtodo = {id:uuid4(), title:input,completed:false}
+        const newtodo = {id:uuid4(), title:input, movimiento:movimiento, cantidad:valor}
         setTodos([...todos, newtodo])
+        console.log(newtodo.movimiento)
+        calcularSaldo(newtodo.movimiento, newtodo.cantidad)
+        handleAdd();
         setInput("");
+        setMovimiento("");
+        setValor("");
     }
     }
 
-    const updateTodo = (id, title, completed) => {
+    const updateTodo = (id, title,movimiento,cantidad) => {
         const newTodos = todos.map((todo)=>
-            todo.id === id ? {id, title, completed}: todo
+            todo.id === id ? {id, title,movimiento,cantidad}: todo
         )
         setTodos(newTodos)
+        console.log(newTodos[0].movimiento)
+        calcularSaldo(newTodos[0].movimiento, newTodos[0].cantidad)
         setEdit(null)
+    }
+
+    const handleSelect = ({target}) =>{
+        setMovimiento(target.value)
+
+    }
+
+    const onBuscarChange = ({target}) =>{
+        setBuscar(target.value)
+
     }
 
     useEffect(() => {
       if (edit) {
-          setInput(edit.title)          
+          setInput(edit.title)
+          setMovimiento(edit.movimiento)
+          setValor(edit.cantidad)             
       }else{
         setInput('')
+        setMovimiento("Ingreso");
+        setValor("");
       }
-    }, [edit, setInput])
+    }, [edit, setInput, setValor, setMovimiento])
 
 
     return (
         <>
-        <form onSubmit={handleSubmit}>
+        <form className='card card-body' onSubmit={handleSubmit}>
+            <div>
+                <h3>Registro Movimiento</h3>
+            </div>
             
-            <label for='Movimiento'>Tipo de movimiento: </label>
-                <select name='Tipo Movimiento'>
+            <label htmlFor='Movimiento'>Tipo de movimiento: </label>
+                <select onChange={handleSelect} name='Tipo Movimiento' required defaultValue={'Ingreso'}>
                     <option value = 'Ingreso'>Ingreso</option>
-                    <option value = 'Egreso'>Egreso</option>
+                    <option value = 'Egreso'>Egreso</option>                
                 </select>
                 <p/>
-                <label for='Nombre'>Nombre: </label>
+                <label htmlFor='Nombre'>Nombre: </label>
                 <input type='text' placeholder='Enter to Todo'
                 className='task-input'
                 value={input}
                 onChange={handleInputChange}
                 required/>
                 <p/>
-                <label for='Cantidad'>Cantidad: </label>
+                <label htmlFor='Cantidad'>Cantidad: </label>
                 <input type='number'
                 placeholder='Enter to Todo'
                 className='task-valor'
@@ -76,13 +113,21 @@ const Formulario = ({input, setInput, todos, setTodos, edit, setEdit, valor, set
             <button className='button-cancel' type='submit'>
                 Cancelar
             </button>
-            <button onClick={handleAdd} className='button-add' type='submit'>
+            <button className='button-add' type='submit'>
                 {edit ? 'Edit' : 'Agregar'}                 
             </button>
             
         </form>
         <h3>Listado de movimientos</h3>
-        <h2>{contar}</h2>
+        <h2> {contar}</h2>
+
+        <input
+            type='text'
+            className='mb-4 form-control'
+            placeholder='Buscar'
+            value={buscar}
+            onChange={onBuscarChange}
+        />
            </>
     )
 }
